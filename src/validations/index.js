@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 
 const AuthValidator = require("./AuthValidator");
+const DashboardValidator = require("./DashboardValidator");
 
 const validate = (validator, type) => (req, res, next) => {
   const schema = getSchema(validator, type);
@@ -44,6 +45,8 @@ const getSchema = (validator, type) => {
   switch (validator) {
     case "auth":
       return AuthValidator(type);
+    case "dashboard":
+      return DashboardValidator(type);
 
     default: {
       return null;

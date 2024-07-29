@@ -13,77 +13,6 @@ const { sendEmail, responseMessage } = require("../../helper");
 const saltRounds = 10;
 
 const AuthService = {
-  signup: async (req) => {
-    try {
-      let message = "Signup Successful";
-      let statusCode = httpStatus.OK;
-
-      const {
-        username,
-        email,
-        password,
-        organization_name,
-        role_name,
-        stations,
-      } = req?.body;
-
-      const salt = await bcrypt.genSalt(saltRounds);
-      const hashPassword = await bcrypt.hash(password, salt);
-
-      let user = await AuthQueries.checkUserExists(username.trim());
-
-      if (user.length > 0) {
-        return responseHandler.returnError(
-          httpStatus.BAD_REQUEST,
-          "User Already Exists"
-        );
-      }
-
-      if (role_name == "Client" && !stations.length > 0) {
-        return responseHandler.returnError(
-          httpStatus.BAD_REQUEST,
-          "Stations Array should not be empty"
-        );
-      }
-
-      const checkRoleExists = await AuthQueries.checkRoleExists(role_name);
-
-      if (checkRoleExists.length == 0) {
-        return responseHandler.returnError(
-          httpStatus.BAD_REQUEST,
-          "Provide Valid Role Name"
-        );
-      }
-
-      const check = await AuthQueries.checkRoleExists(role_name);
-
-      let organization_id = null;
-
-      let addUser = await AuthQueries.signup(
-        username,
-        email,
-        hashPassword,
-        checkRoleExists[0]?.id,
-        organization_id
-      );
-
-      const newUser = await AuthQueries.getUserByName(username);
-
-      let values = [];
-      for (const station of stations) {
-        values.push([newUser[0]?.id, station]);
-      }
-      if (values.length > 0) {
-        const addUserStations = await AuthQueries.addUserStations(values);
-      }
-      return responseHandler.returnSuccess(statusCode, message);
-    } catch (err) {
-      return responseHandler.returnError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        responseMessage(err)
-      );
-    }
-  },
   login: async (req) => {
     try {
       let message = "Login Successful";
@@ -174,29 +103,56 @@ const AuthService = {
 
   forgetPassword: async (req) => {
     try {
-      let message = "Reset password link sent to your email successfully";
-      let statusCode = httpStatus.OK;
-
-      const { email } = req?.body;
-
-      let user = await AuthQueries.checkUserExists(email);
-      const url = `${config.BASE_URL}/reset-password/${user[0]?.id}`;
-
-      const htmlTemplate = resetPassword(user[0]?.username, url);
-      const sendMail = await sendEmail(
+      const {
+        username,
         email,
-        "Reset your Wateen Solution Password",
-        "Please click on link to reset password",
-        htmlTemplate
-      );
-      if (user.length == 0) {
-        return responseHandler.returnError(
-          httpStatus.BAD_REQUEST,
-          "User not exists. Sign up first"
-        );
+        password,
+        role_id,
+        phone_number,
+        image,
+        qualifications,
+        qualification_specialisation,
+        availability_timing,
+        remote_inperson,
+        location,
+        experience,
+        certificates,
+        doctor_fee,
+        about,
+      } = req.body;
+      console.log("req body", req?.body);
+      // Check if user already exists
+      const existingUser = await AuthQueries.checkUserExists(username, email);
+      if (existingUser.length > 0) {
+        const message = "User already exists";
+        const statusCode = httpStatus.OK;
+        return responseHandler.returnSuccess(statusCode, message, existingUser);
       }
-
-      return responseHandler.returnSuccess(statusCode, message, user);
+      let hashPassword = null;
+      if (password) {
+        const salt = await bcrypt.genSalt(saltRounds);
+        hashPassword = await bcrypt.hash(password, salt);
+      }
+      const result = await AuthQueries.signup(
+        username,
+        email,
+        hashPassword,
+        role_id,
+        phone_number,
+        image,
+        qualifications,
+        qualification_specialisation,
+        availability_timing,
+        remote_inperson,
+        location,
+        experience,
+        certificates,
+        doctor_fee,
+        about
+      );
+      const message = "User registered successfully";
+      const statusCode = httpStatus.CREATED;
+      return responseHandler.returnSuccess(statusCode, message, result);
     } catch (err) {
       return responseHandler.returnError(
         httpStatus.INTERNAL_SERVER_ERROR,
@@ -204,7 +160,6 @@ const AuthService = {
       );
     }
   },
-
   updateUser: async (req) => {
     try {
       let message = "User Updated Successfully";
@@ -274,28 +229,6 @@ const AuthService = {
       }
 
       const data = {};
-
-      return responseHandler.returnSuccess(statusCode, message, data);
-    } catch (err) {
-      return responseHandler.returnError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        responseMessage(err)
-      );
-    }
-  },
-
-  deleteUser: async (req) => {
-    try {
-      let message = "User Deleted Successfully";
-      let statusCode = httpStatus.OK;
-
-      const user = req?.user;
-
-      const deleted_user_id = req?.params.id;
-
-      const data = {};
-
-      const deleteUser = await AuthQueries.deleteUser(deleted_user_id);
 
       return responseHandler.returnSuccess(statusCode, message, data);
     } catch (err) {

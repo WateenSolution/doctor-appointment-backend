@@ -12,12 +12,20 @@ exports.up = async function (knex) {
     return await knex.schema.createTable(tableName, (table) => {
       table.bigIncrements("id").unsigned().primary();
       table.bigInteger("role_id").unsigned();
-      table.bigInteger("organization_id").unsigned();
       table.string("username", 255);
       table.string("email", 255);
       table.string("phone_number", 255);
       table.string("password", 255);
-      table.string("image", 255);
+      table.text("image");
+      table.string("qualifications", 255);
+      table.string("qualification_specialisation", 255);
+      table.string("availability_timing", 255);
+      table.string("remote_inperson", 255);
+      table.string("location", 255);
+      table.string("experience", 255);
+      table.string("certificates", 255);
+      table.string("doctor_fee", 255);
+      table.text("about");
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table
         .timestamp("updated_at")
@@ -26,10 +34,6 @@ exports.up = async function (knex) {
 
       //  Add foreign key constraints
       table.foreign("role_id").references("id").inTable("roles");
-      table
-        .foreign("organization_id")
-        .references("id")
-        .inTable("organizations");
     });
   }
 };

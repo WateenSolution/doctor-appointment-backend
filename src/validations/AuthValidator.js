@@ -2,18 +2,6 @@ const Joi = require("joi");
 const { passwordMessage, passwordRegExp } = require("../utils");
 const AuthValidator = (type) => {
   switch (type) {
-    case "add-user": {
-      return Joi.object({
-        username: Joi.string().required(),
-        email: Joi.string()
-          .email({ tlds: { allow: false } })
-          .required(),
-        password: Joi.string()
-          .required()
-          .regex(passwordRegExp, passwordMessage),
-        role_name: Joi.string().required(),
-      });
-    }
     case "login": {
       return Joi.object({
         username: Joi.string().required(),
@@ -33,11 +21,29 @@ const AuthValidator = (type) => {
     }
     case "forget-password": {
       return Joi.object({
+        username: Joi.string().required(),
         email: Joi.string()
           .email({ tlds: { allow: false } })
           .required(),
+        password: Joi.string()
+          .required()
+          .regex(passwordRegExp, passwordMessage),
+        role_id: Joi.number().required(),
+
+        phone_number: Joi.string().required(),
+        image: Joi.string().uri().required(),
+        qualifications: Joi.string().optional(),
+        qualification_specialisation: Joi.string().optional(),
+        availability_timing: Joi.string().optional(),
+        remote_inperson: Joi.string().optional(),
+        location: Joi.string().optional(),
+        experience: Joi.string().optional(),
+        certificates: Joi.string().optional(),
+        doctor_fee: Joi.string().optional(),
+        about: Joi.string().optional(),
       });
     }
+
     case "update-user-info": {
       return Joi.object({});
     }

@@ -2,14 +2,62 @@ const { dbConnection } = require("../../config");
 const { executeQuery } = require("../../utils/dbUtils");
 
 const AuthQueries = {
-  signup: (username, email, password, role_id, organization_id) => {
-    let sqlQuery = `INSERT INTO users (username, email, password, role_id, organization_id) VALUES ( ?, ?, ?, ?, ?);`;
-    let values = [username, email, password, role_id, organization_id];
+  signup: (
+    username,
+    email,
+    password,
+    role_id,
+    phone_number,
+    image,
+    qualifications,
+    qualification_specialisation,
+    availability_timing,
+    remote_inperson,
+    location,
+    experience,
+    certificates,
+    doctor_fee,
+    about
+  ) => {
+    let sqlQuery = `INSERT INTO users (
+      username, 
+      email, 
+      password, 
+      role_id, 
+      phone_number, 
+      image,
+      qualifications, 
+      qualification_specialisation, 
+      availability_timing, 
+      remote_inperson, 
+      location, 
+      experience, 
+      certificates, 
+      doctor_fee, 
+      about
+    ) VALUES (?, ?, ?, ?, ?, ?,  ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+    let values = [
+      username,
+      email,
+      password,
+      role_id,
 
+      phone_number,
+      image,
+      qualifications,
+      qualification_specialisation,
+      availability_timing,
+      remote_inperson,
+      location,
+      experience,
+      certificates,
+      doctor_fee,
+      about,
+    ];
     return executeQuery(sqlQuery, values);
   },
   checkUserExists: (username, email) => {
-    const sqlQuery = `SELECT id, email, username FROM users WHERE (username = ? OR email = ?) AND deleted_at is ?;`;
+    const sqlQuery = `SELECT id, email, username FROM users WHERE (username = ? AND email = ?) AND deleted_at is ?;`;
     const values = [username, email, null];
 
     return executeQuery(sqlQuery, values);

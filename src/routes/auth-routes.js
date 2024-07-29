@@ -5,13 +5,12 @@ const validate = require("../validations");
 
 const AuthController = require("../controllers/auth-controller");
 
-router.post("/add-user", validate("auth", "add-user"), AuthController.signup);
 router.put(
   "/update-user",
   validate("auth", "update-user"),
   AuthController.updateUser
 );
-router.delete("/delete-user/:id", AuthController.deleteUser);
+
 router.get("/users", AuthController.getUsers);
 router.get("/user/:id", AuthController.getUserById);
 

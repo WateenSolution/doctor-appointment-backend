@@ -2,7 +2,7 @@ const { executeQuery } = require("../../utils/dbUtils");
 
 const DashboardQueries = {
   getFilterPersonInfo: (role_id, qualification_specialisation) => {
-    let sqlQuery = `SELECT *, rate.average_rating ,rate.total_reviews
+    let sqlQuery = `SELECT u.*, rate.average_rating ,rate.total_reviews
                     FROM users AS u 
                     JOIN roles AS r ON u.role_id = r.id 
                     AND r.id = ?`;

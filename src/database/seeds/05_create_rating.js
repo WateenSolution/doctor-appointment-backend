@@ -15,10 +15,5 @@ exports.seed = async function (knex) {
       average_rating: 4.5,
       total_reviews: 10,
     },
-    {
-      doctor_name: "admin",
-      average_rating: 4.7,
-      total_reviews: 20,
-    },
   ]);
 };

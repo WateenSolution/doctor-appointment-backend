@@ -41,7 +41,6 @@ const AuthQueries = {
       email,
       password,
       role_id,
-
       phone_number,
       image,
       qualifications,

@@ -2,6 +2,7 @@ const httpStatus = require("http-status");
 
 const AuthValidator = require("./AuthValidator");
 const DashboardValidator = require("./DashboardValidator");
+const AppointmentValidator = require("./AppointmentValidator");
 
 const validate = (validator, type) => (req, res, next) => {
   const schema = getSchema(validator, type);
@@ -47,7 +48,8 @@ const getSchema = (validator, type) => {
       return AuthValidator(type);
     case "dashboard":
       return DashboardValidator(type);
-
+    case "appointment":
+      return AppointmentValidator(type);
     default: {
       return null;
     }

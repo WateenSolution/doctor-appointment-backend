@@ -23,10 +23,17 @@ const DashboardQueries = {
 
     return executeQuery(sqlQuery, values);
   },
-  getTotalUsers: () => {
-    let sqlQuery = `SELECT count(*) As counter FROM users ;`;
+  getTotalUsers: (username) => {
+    let sqlQuery = `SELECT r.average_rating,r.total_reviews from rating as r join users as u where r.doctor_name=u.username And u.username=? ;`;
 
-    let values = [];
+    let values = [username];
+
+    return executeQuery(sqlQuery, values);
+  },
+  getBookPatient: (username) => {
+    let sqlQuery = `SELECT pa.*,u.image from patient_appointments as pa join users as u where pa.user_id=u.id And doctor=?  ;`;
+
+    let values = [username];
 
     return executeQuery(sqlQuery, values);
   },

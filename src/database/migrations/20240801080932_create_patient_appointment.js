@@ -18,6 +18,10 @@ exports.up = async function (knex) {
       table.string("doctor", 255).notNullable();
       table.time("appointment_time").notNullable();
       table.text("notes");
+      table
+        .enum("status", ["pending", "approved", "disapproved"])
+        .defaultTo("pending")
+        .notNullable();
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table
         .timestamp("updated_at")

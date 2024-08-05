@@ -120,7 +120,7 @@ const AuthService = {
         doctor_fee,
         about,
       } = req.body;
-      console.log("req body", req?.body);
+
       // Check if user already exists
       const existingUser = await AuthQueries.checkUserExists(username, email);
       if (existingUser.length > 0) {

@@ -10,10 +10,7 @@ exports.seed = async function (knex) {
     await knex("doctor_appointment").insert([
       {
         doctor_name: "Doctor",
-        booked_slots: JSON.stringify([
-          { time: "02:00:00", status: "true" },
-          { time: "02:30:00", status: "true" },
-        ]),
+        booked_slots: JSON.stringify([{ time: "01:00:00", status: "true" }]),
       },
     ]);
   }

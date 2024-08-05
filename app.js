@@ -2,6 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const httpStatus = require("http-status");
 const cors = require("cors");
+const http = require("http");
+
+const path = require("path");
+const { Server } = require("socket.io");
 
 const responseHandler = require("./src/helper/responseHandler");
 const routes = require("./src/routes");
@@ -15,10 +19,18 @@ if (config.nodeEnv !== appEnvironments.LOCAL) {
 }
 
 const app = express();
-
+const server = http.createServer(app);
+const io = new Server(server);
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+
+// Socket.io
+io.on("connection", (socket) => {
+  socket.on("user-message", (message) => {
+    io.emit("message", message);
+  });
+});
 
 // Show Default route
 app.get("/", (req, res, next) => {

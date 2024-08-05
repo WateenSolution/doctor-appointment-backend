@@ -13,7 +13,9 @@ const DashboardService = {
       let statusCode = httpStatus.OK;
 
       const getAllDoctorsDetails = req?.user;
-      let total_users = await DashboardQueries.getTotalUsers();
+      let total_users = await DashboardQueries.getTotalUsers(
+        req?.user?.username
+      );
 
       const data = { getAllDoctorsDetails, total_users };
 
@@ -36,6 +38,28 @@ const DashboardService = {
       );
 
       const data = { getAllFilterDoc };
+
+      return responseHandler.returnSuccess(statusCode, message, data);
+    } catch (err) {
+      return responseHandler.returnError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        responseMessage(err)
+      );
+    }
+  },
+
+  getBookedPatient: async (req) => {
+    try {
+      let message = "Get Patient Booked Data";
+      let statusCode = httpStatus.OK;
+
+      const getUser = req?.user;
+
+      let total_users = await DashboardQueries.getBookPatient(
+        getUser?.username
+      );
+
+      const data = { total_users };
 
       return responseHandler.returnSuccess(statusCode, message, data);
     } catch (err) {

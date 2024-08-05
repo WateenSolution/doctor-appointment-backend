@@ -40,17 +40,38 @@ const AppointmentService = {
     try {
       let message = "Available Time checked successfully";
       let statusCode = httpStatus.OK;
-      const { name, time } = req?.body;
+      const { name, time, status, user_id } = req?.body;
 
-      // Check if the time slot is available
-      let docBookSlots = await AppointmentQueries.checkDocBookSlot(name, time);
-      if (docBookSlots.length > 0) {
-        // If available, book the time slot
-        await AppointmentQueries.updateBookSlot(name, time);
+      let userAvaible = await AppointmentQueries.checkUserAvailable(name);
+
+      if (userAvaible[0]?.count == "0") {
+        await AppointmentQueries.addDoctor(name, time);
+        await AppointmentQueries.updatePatientStatus(
+          name,
+          time,
+          status,
+          user_id
+        );
         message = "Time slot booked successfully";
       } else {
-        message = "Time slot is not available";
-        statusCode = httpStatus.BAD_REQUEST;
+        let docBookSlots = await AppointmentQueries.checkDocBookSlot(
+          name,
+          time
+        );
+        if (docBookSlots.length > 0) {
+          // If available, book the time slot
+          await AppointmentQueries.updateBookSlot(name, time);
+          await AppointmentQueries.updatePatientStatus(
+            name,
+            time,
+            status,
+            user_id
+          );
+          message = "Time slot booked successfully";
+        } else {
+          message = "Time slot is not available";
+          statusCode = httpStatus.BAD_REQUEST;
+        }
       }
       const data = await AppointmentQueries.getTimeAppointAndBooked(name);
       return responseHandler.returnSuccess(statusCode, message, data);

@@ -15,6 +15,14 @@ const AppointmentQueries = {
 
     return executeQuery(sqlQuery, values);
   },
+  checkUserAvailable: (name) => {
+    let sqlQuery = `
+     SELECT COUNT(*) AS count FROM doctor_appointment WHERE doctor_name = ?;
+ `;
+    let values = [name];
+
+    return executeQuery(sqlQuery, values);
+  },
   checkDocBookSlot: (name, time) => {
     let sqlQuery = `
         SELECT user.username, user.availability_timing,da.booked_slots
@@ -43,11 +51,32 @@ const AppointmentQueries = {
 
   updateBookSlot: (name, time) => {
     let sqlQuery = `
-        UPDATE doctor.doctor_appointment
+       UPDATE doctor_appointment
         SET booked_slots = JSON_ARRAY_APPEND(booked_slots, '$', JSON_OBJECT('time', ?, 'status', 'true'))
         WHERE doctor_name = ?;
     `;
     let values = [time, name];
+
+    return executeQuery(sqlQuery, values);
+  },
+  updatePatientStatus: (name, time, status, user_id) => {
+    let sqlQuery = `
+        UPDATE patient_appointments
+        SET status = ?
+        WHERE doctor = ? 
+        AND user_id = ? 
+        AND appointment_time = ?;
+    `;
+    let values = [status, name, user_id, time];
+
+    return executeQuery(sqlQuery, values);
+  },
+  addDoctor: (name, time) => {
+    let sqlQuery = `
+      INSERT INTO doctor_appointment (doctor_name, booked_slots, created_at, updated_at)
+      VALUES (?, JSON_ARRAY(JSON_OBJECT('time', ?, 'status', 'true')), NOW(), NOW());
+    `;
+    let values = [name, time];
 
     return executeQuery(sqlQuery, values);
   },

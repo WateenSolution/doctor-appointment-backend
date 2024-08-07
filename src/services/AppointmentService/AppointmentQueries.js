@@ -23,6 +23,94 @@ const AppointmentQueries = {
 
     return executeQuery(sqlQuery, values);
   },
+  addPatientHistory: (patient_name, doc_name, rating) => {
+    let sqlQuery = `
+      INSERT INTO history (patient_name, doc_name, rating)
+        VALUES (?, ?, ?)`;
+
+    let values = [patient_name, doc_name, rating];
+    return executeQuery(sqlQuery, values);
+  },
+  existRateUser: (doc_name) => {
+    let sqlQuery = `
+      SELECT COUNT(*) AS count, average_rating, total_reviews
+      FROM rating
+      WHERE doctor_name = ?
+      GROUP BY doctor_name, average_rating, total_reviews
+    `;
+    let values = [doc_name];
+    return executeQuery(sqlQuery, values);
+  },
+
+  updateDoctorRating: async (doctor_name, new_rating) => {
+    let currentRating = await AppointmentQueries.existRateUser(doctor_name);
+
+    let total_reviews = currentRating[0].total_reviews + 1;
+
+    let new_average_rating =
+      (currentRating[0].average_rating * currentRating[0].total_reviews +
+        new_rating) /
+      total_reviews;
+
+    let sqlQuery = `
+      UPDATE rating
+      SET average_rating = ?, total_reviews = ?
+      WHERE doctor_name = ?
+    `;
+    let values = [new_average_rating, total_reviews, doctor_name];
+
+    return executeQuery(sqlQuery, values);
+  },
+
+  insertRating: async (doctor_name, initial_rating) => {
+    let sqlQuery = `
+      INSERT INTO rating (doctor_name, average_rating, total_reviews)
+      VALUES (?, ?, 1)
+    `;
+    let values = [doctor_name, initial_rating];
+
+    return executeQuery(sqlQuery, values);
+  },
+
+  updatePatientHistory: (
+    user_id,
+    first_name,
+    last_name,
+    doctor,
+    appointment_time,
+    doc_rating
+  ) => {
+    let sqlQuery = `
+      UPDATE patient_appointments
+       SET doc_rating = ?, rating_status = "completed"
+      WHERE last_name = ? AND doctor = ? AND appointment_time = ? AND first_name = ? AND user_id = ?
+    `;
+    let values = [
+      doc_rating,
+      last_name,
+      doctor,
+      appointment_time,
+      first_name,
+      user_id,
+    ];
+    return executeQuery(sqlQuery, values);
+  },
+
+  existRatingUser: (
+    user_id,
+    first_name,
+    last_name,
+    doctor,
+    appointment_time
+  ) => {
+    let sqlQuery = `
+    SELECT count(*) as count FROM patient_appointments
+      WHERE user_id=? AND first_name = ? AND last_name = ? AND doctor = ? AND appointment_time = ?  
+    `;
+    let values = [user_id, first_name, last_name, doctor, appointment_time];
+    return executeQuery(sqlQuery, values);
+  },
+
   checkDocBookSlot: (name, time) => {
     let sqlQuery = `
         SELECT user.username, user.availability_timing,da.booked_slots
@@ -169,6 +257,14 @@ const AppointmentQueries = {
     let sqlQuery = `INSERT INTO patient_appointments 
     (first_name, last_name, doctor, appointment_time, notes,user_id) VALUES (?, ?, ?, ?, ?,?);`;
     let values = [firstName, lastName, doctor, appointmentTime, notes, user_id];
+    return executeQuery(sqlQuery, values);
+  },
+  getDocAppList: (user_name) => {
+    let sqlQuery = `
+        SELECT pa.*,u.image,u.remote_inperson,u.doctor_fee from patient_appointments as pa join users as u where pa.doctor=? And pa.doctor=u.username;
+    `;
+    let values = [user_name];
+
     return executeQuery(sqlQuery, values);
   },
   getPatAppList: (user_id) => {

@@ -15,6 +15,8 @@ router.post(
   validate("appointment", "add-patient-form"),
   AppointmentController.addPatientForm
 );
+router.post("/add-rating", auth, AppointmentController.addRatings);
 router.get("/get-pat-app-list", auth, AppointmentController.getPatAppList);
+router.get("/get-doc-app-list", auth, AppointmentController.getDocAppList);
 
 module.exports = router;

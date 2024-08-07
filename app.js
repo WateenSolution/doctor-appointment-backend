@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const httpStatus = require("http-status");
 const cors = require("cors");
 const http = require("http");
-
 const path = require("path");
 const { Server } = require("socket.io");
 
@@ -20,17 +19,29 @@ if (config.nodeEnv !== appEnvironments.LOCAL) {
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Adjust this if you have specific origins to allow
+    methods: ["GET", "POST"],
+  },
+});
+
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // Socket.io
 io.on("connection", (socket) => {
-  socket.on("user-message", (message) => {
-    io.emit("message", message);
+  socket.on("user-message", (messageData) => {
+    // Emit the message to all connected clients
+    io.emit("message", messageData);
   });
+
+  socket.on("disconnect", () => {});
 });
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "client/build")));
 
 // Show Default route
 app.get("/", (req, res, next) => {
@@ -49,6 +60,6 @@ app.use((req, res) => {
 
 const PORT = config.port || 5000;
 
-app.listen(PORT, () => {
-  console.log("listening on ", PORT);
+server.listen(PORT, () => {
+  console.log("Server listening on port", PORT);
 });

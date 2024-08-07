@@ -28,6 +28,18 @@ const AppointmentController = {
       res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
     }
   },
+  addRatings: async (req, res) => {
+    try {
+      const obj = await AppointmentService.addRatings(req);
+      const { message } = obj.response;
+      const { data } = obj.response;
+
+      res.status(obj.statusCode).send({ message, data });
+    } catch (e) {
+      logger.error(e);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
+    }
+  },
   getAppointTime: async (req, res) => {
     try {
       const obj = await AppointmentService.getAppointTime(req);
@@ -57,6 +69,19 @@ const AppointmentController = {
   getPatAppList: async (req, res) => {
     try {
       const obj = await AppointmentService.getPatAppList(req);
+
+      const { message } = obj.response;
+      const { data } = obj.response;
+
+      res.status(obj.statusCode).send({ message, data });
+    } catch (e) {
+      logger.error(e);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
+    }
+  },
+  getDocAppList: async (req, res) => {
+    try {
+      const obj = await AppointmentService.getDocAppList(req);
 
       const { message } = obj.response;
       const { data } = obj.response;

@@ -82,6 +82,58 @@ const AppointmentService = {
       );
     }
   },
+
+  addRatings: async (req) => {
+    try {
+      const {
+        user_id,
+        first_name,
+        last_name,
+        doctor,
+        appointment_time,
+        doc_rating,
+      } = req.body;
+
+      let existUser = await AppointmentQueries.existRatingUser(
+        user_id,
+        first_name,
+        last_name,
+        doctor,
+        appointment_time
+      );
+
+      if (existUser[0].count > 0) {
+        let updateRating = await AppointmentQueries.updatePatientHistory(
+          user_id,
+          first_name,
+          last_name,
+          doctor,
+          appointment_time,
+          doc_rating
+        );
+        ////update rate table
+        let existRateUser = await AppointmentQueries.existRateUser(doctor);
+
+        if (existRateUser[0]?.count > 0) {
+          await AppointmentQueries.updateDoctorRating(doctor, doc_rating);
+        } else {
+          await AppointmentQueries.insertRating(doctor, doc_rating);
+        }
+      }
+
+      // Return success response
+      const message = "Rating of the doctor done successfully";
+      const statusCode = httpStatus.OK;
+      const data = { existUser }; // Adjust based on actual data structure
+      return responseHandler.returnSuccess(statusCode, message, data);
+    } catch (err) {
+      return responseHandler.returnError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        responseMessage(err)
+      );
+    }
+  },
+
   getAppointTime: async (req) => {
     try {
       let message = "Get Avaible and booked time successfully";
@@ -131,6 +183,34 @@ const AppointmentService = {
 
       const getPatientsAppList = await AppointmentQueries.getPatAppList(
         user_id
+      );
+
+      if (getPatientsAppList.length == 0) {
+        return responseHandler.returnError(
+          httpStatus.NOT_FOUND,
+          "No Appointment Done Yet"
+        );
+      }
+
+      const data = getPatientsAppList;
+
+      return responseHandler.returnSuccess(statusCode, message, data);
+    } catch (err) {
+      return responseHandler.returnError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        responseMessage(err)
+      );
+    }
+  },
+  getDocAppList: async (req) => {
+    try {
+      let message = "Get Appointment List of Doctors";
+      let statusCode = httpStatus.OK;
+
+      const user_name = req?.user?.username || null;
+
+      const getPatientsAppList = await AppointmentQueries.getDocAppList(
+        user_name
       );
 
       if (getPatientsAppList.length == 0) {

@@ -13,7 +13,7 @@ const DashboardQueries = {
     }
 
     sqlQuery += ` LEFT JOIN rating AS rate ON u.username = rate.doctor_name 
-                  ORDER BY rate.average_rating;`;
+                  ORDER BY rate.average_rating DESC;`;
 
     // Create values array based on the presence of qualification_specialisation
     let values = [role_id];
